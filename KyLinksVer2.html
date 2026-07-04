@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KyLinks Ver 2</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#00d2ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22KyLinks%22,%22short_name%22:%22KyLinks%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%2300d2ff%22,%22theme_color%22:%22%2300d2ff%22}">
+
+    <!-- Tailwind v4 & FontAwesome & QRCode API -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* NEON CYBERPUNK 50:50 SPLIT GRADIENT */
+        body.dark-mode {
+            background: linear-gradient(123deg, #0f018e 0%, #181448 50%, #ad0578 100%);
+            color: #ffffff;
+        }
+        body:not(.dark-mode) {
+            background: linear-gradient(116deg, #ff94a9 0%, #758cff 100%);
+            color: #0f172a;
+        }
+
+        /* Glassmorphism Ultra-Modern */
+        .bento-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        body.dark-mode .bento-card {
+            background-color: rgba(0, 5, 15, 0.65);
+            border: 1px solid rgba(18, 126, 150, 0.2);
+            box-shadow: 0 0 20px rgba(255, 76, 165, 0.192), 0 0 20px rgba(0, 210, 255, 0.05);
+        }
+        body:not(.dark-mode) .bento-card {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px -10px rgba(27, 48, 99, 0.342);
+        }
+
+        .bento-card:hover {
+            transform: translateY(-6px) scale(1.015);
+        }
+        body.dark-mode .bento-card:hover {
+            border-color: rgba(255, 0, 127, 0.5);
+            box-shadow: 0 0 25px rgba(206, 5, 105, 0.2), 0 0 25px rgba(0, 210, 255, 0.2);
+        }
+
+        /* Inputs */
+        body.dark-mode .custom-input {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body:not(.dark-mode) .custom-input {
+            background-color: #ffffff;
+            color: #0f172a;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+        }
+
+        /* Scrollbar Neon */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #00d2ff, #ff007f); border-radius: 10px; }
+    </style>
+</head>
+<body class="dark-mode min-h-screen font-sans antialiased transition-colors duration-500">
+
+    <!-- APP WRAPPER -->
+    <div class="max-w-5xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-6">
+        
+        <!-- ================= SIDEBAR PROFIL (KIRI) ================= -->
+        <aside class="w-full md:w-85 flex flex-col items-center text-center md:text-left md:items-start shrink-0">
+            <!-- Profile Card -->
+            <div class="w-full p-6 rounded-3xl bento-card relative overflow-hidden group">
+                <div class="absolute -right-6 -top-6 w-28 h-28 bg-[#ff007f]/20 rounded-full blur-2xl group-hover:bg-[#ff007f]/30 transition-all"></div>
+                <div class="absolute -left-6 -bottom-6 w-28 h-28 bg-[#00d2ff]/20 rounded-full blur-2xl group-hover:bg-[#00d2ff]/30 transition-all"></div>
+                
+                <div class="relative flex flex-col items-center md:items-start w-full">
+                    
+                    <!-- Avatar Frame (Foto / Inisial) -->
+                    <div class="w-24 h-24 rounded-2xl bg-gradient-to-tr from-[#00d2ff] via-purple-500 to-[#ff007f] p-[3px] shadow-lg relative">
+                        <div id="profile-avatar-container" class="w-full h-full bg-slate-950 rounded-[13px] overflow-hidden flex items-center justify-center text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#ff007f]">
+                            KY
+                        </div>
+                    </div>
+
+                    <!-- Info User -->
+                    <h1 id="profile-name" class="text-3xl font-black tracking-tight mt-5 bg-gradient-to-r from-[#00d2ff] to-[#ff007f] bg-clip-text text-transparent">Kyline</h1>
+                    
+                    <!-- Bio Space -->
+                    <p id="profile-bio" class="text-xs mt-2 opacity-80 leading-relaxed font-medium">SMK RPL • Aspiring ITB Student • Web Developer • JKT48 Fan</p>
+                    
+                    <!-- Location Space -->
+                    <div id="profile-location-box" class="flex items-center gap-1.5 text-[11px] font-mono font-bold opacity-60 mt-3 text-[#00d2ff] dark:text-[#ff007f]">
+                        <i class="fas fa-map-marker-alt"></i> <span id="profile-location">Indonesia</span>
+                    </div>
+                    
+                    <!-- Quick Actions Panel -->
+                    <div class="grid grid-cols-2 gap-2 w-full mt-5">
+                        <button onclick="copyProfileLink()" class="bg-black/20 dark:bg-white/5 border border-white/10 py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition cursor-pointer flex items-center justify-center gap-1.5">
+                            <i class="fas fa-copy"></i> Copy Link
+                        </button>
+                        <button onclick="shareProfile()" class="bg-black/20 dark:bg-white/5 border border-white/10 py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition cursor-pointer flex items-center justify-center gap-1.5">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+
+                    <div class="w-full h-[1px] bg-white/10 my-4"></div>
+
+                    <!-- Kolom Cari -->
+                    <div class="w-full relative">
+                        <i class="fas fa-search absolute left-4 top-3.5 text-xs opacity-40"></i>
+                        <input type="text" id="search-bar" oninput="renderDashboard()" placeholder="Cari link..." class="w-full custom-input rounded-xl py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-[#ff007f] transition-all">
+                    </div>
+
+                    <!-- Tema & QR System Buttons -->
+                    <div class="flex gap-2 w-full mt-3">
+                        <button onclick="toggleDarkMode()" class="flex-1 bg-[#00d2ff]/10 border border-[#00d2ff]/30 py-2 rounded-xl text-xs font-black text-[#00a2cc] dark:text-[#00d2ff] hover:opacity-80 transition cursor-pointer">
+                            <i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i> Mode
+                        </button>
+                        <button onclick="showQRCodeApp()" class="flex-1 bg-[#ff007f]/10 border border-[#ff007f]/30 py-2 rounded-xl text-xs font-black text-[#cc0066] dark:text-[#ff007f] hover:opacity-80 transition cursor-pointer">
+                            <i class="fas fa-qrcode"></i> QR Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Monitor Statistik -->
+            <div class="w-full mt-3 grid grid-cols-2 gap-3">
+                <div class="p-4 rounded-2xl bento-card text-center">
+                    <span id="total-links-count" class="block text-2xl font-black text-[#00d2ff]">0</span>
+                    <span class="text-[10px] uppercase font-mono font-bold opacity-60">Total Links</span>
+                </div>
+                <div class="p-4 rounded-2xl bento-card text-center">
+                    <span id="total-clicks-count" class="block text-2xl font-black text-[#ff007f]">0</span>
+                    <span class="text-[10px] uppercase font-mono font-bold opacity-60">Total Klik</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Trigger -->
+            <button onclick="openAuthModal()" class="w-full mt-3 bg-gradient-to-r from-[#00d2ff] to-[#ff007f] hover:opacity-90 text-white shadow-lg py-3 rounded-2xl text-xs font-black tracking-wider uppercase transition cursor-pointer">
+                <i class="fas fa-sliders-h mr-2"></i> Terminal Kontrol
+            </button>
+        </aside>
+
+        <!-- ================= CONTENT GRID (KANAN) ================= -->
+        <main class="flex-1 flex flex-col gap-6">
+            <!-- Pinned Space -->
+            <section id="pinned-section" class="hidden">
+                <h2 class="text-xs uppercase font-mono tracking-widest font-black text-[#ff007f] mb-3 flex items-center gap-2">
+                    <i class="fas fa-thumbtack text-[#00d2ff]"></i> Prioritas Utama
+                </h2>
+                <div id="pinned-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            </section>
+
+            <!-- Kategori Ruang Utama -->
+            <section id="categories-space" class="space-y-6"></section>
+        </main>
+    </div>
+
+    <!-- ================= TERMINAL KONTROL UTAMA MODAL ================= -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <!-- Input Password Sec -->
+        <div id="auth-box" class="bg-slate-950 border border-white/10 p-6 rounded-3xl w-full max-w-sm shadow-2xl text-center text-white">
+            <div class="w-12 h-12 rounded-full bg-[#ff007f]/10 text-[#ff007f] mx-auto flex items-center justify-center text-lg mb-4 border border-[#ff007f]/20">
+                <i class="fas fa-lock text-[#00d2ff]"></i>
+            </div>
+            <h3 class="text-lg font-bold">Akses Admin Terkunci</h3>
+            <p class="text-xs text-gray-400 mt-1 mb-4">Masukkan sandi rahasia terminal.</p>
+            <input type="password" id="admin-password" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl text-white mb-4 text-center tracking-widest focus:outline-none focus:border-[#ff007f]" placeholder="••••••••">
+            <div class="flex gap-2">
+                <button onclick="closeModal()" class="w-1/2 bg-white/5 hover:bg-white/10 text-white text-xs py-2.5 rounded-xl font-bold cursor-pointer">Batal</button>
+                <button onclick="verifyAccess()" class="w-1/2 bg-gradient-to-r from-[#00d2ff] to-[#ff007f] text-white text-xs py-2.5 rounded-xl font-bold cursor-pointer">Akses Masuk</button>
+            </div>
+        </div>
+
+        <!-- Terminal Kontrol Workspace -->
+        <div id="dashboard-box" class="bg-slate-950 border border-white/10 p-6 rounded-3xl w-full max-w-2xl shadow-2xl hidden max-h-[90vh] flex flex-col text-white">
+            <div class="flex justify-between items-center pb-4 border-b border-white/5">
+                <div>
+                    <h3 class="text-xl font-black bg-gradient-to-r from-[#00d2ff] to-[#ff007f] bg-clip-text text-transparent">Core Terminal</h3>
+                    <p class="text-xs text-gray-400 font-mono">Modifikasi identitas & data link</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="triggerBackup()" class="bg-[#00d2ff]/10 border border-[#00d2ff]/20 text-[#00d2ff] px-3 py-1.5 rounded-xl text-xs font-mono hover:bg-[#00d2ff]/20 cursor-pointer"><i class="fas fa-download"></i> Backup</button>
+                    <button onclick="triggerRestore()" class="bg-[#ff007f]/10 border border-[#ff007f]/20 text-[#ff007f] px-3 py-1.5 rounded-xl text-xs font-mono hover:bg-[#ff007f]/20 cursor-pointer"><i class="fas fa-upload"></i> Restore</button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto py-4 space-y-6 pr-1">
+                <!-- CONFIGURASI IDENTITAS PROFIL -->
+                <div class="p-4 bg-black/40 border border-white/5 rounded-2xl space-y-3">
+                    <span class="text-xs font-mono uppercase tracking-wider text-[#ff007f] block font-bold"><i class="fas fa-user-cog mr-1"></i> Edit Identitas Profil</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-mono block mb-1">Nama Utama</label>
+                            <input type="text" id="cfg-name" class="w-full bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <!-- GANTI KE MEDIA UPLOAD -->
+                            <label class="text-[10px] text-gray-400 font-mono block mb-1">Pilih Foto Profil (Dari HP/Laptop/iPad)</label>
+                            <input type="file" id="cfg-avatar-file" accept="image/*" onchange="handleAvatarUpload(event)" class="w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 cursor-pointer">
+                            <button onclick="clearAvatar()" class="text-[9px] text-red-400 hover:underline mt-1 block font-mono">Hapus Foto (Ganti Inisial)</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-mono block mb-1">Bio Deskripsi</label>
+                            <input type="text" id="cfg-bio" class="w-full bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-mono block mb-1">Lokasi (Kosongkan jika disembunyikan)</label>
+                            <input type="text" id="cfg-location" class="w-full bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs text-white focus:outline-none">
+                        </div>
+                    </div>
+                    <button onclick="saveProfileConfig()" class="w-full bg-gradient-to-r from-[#00d2ff] to-[#ff007f] text-white py-2.5 rounded-xl text-xs font-black uppercase hover:opacity-90 transition cursor-pointer">Update Data Profil</button>
+                </div>
+
+                <!-- Form Add New Link -->
+                <div class="p-4 bg-black/40 border border-white/5 rounded-2xl space-y-3">
+                    <span class="text-xs font-mono uppercase tracking-wider text-[#00d2ff] block font-bold"><i class="fas fa-plus-circle mr-1"></i> Injeksi Komponen Link</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input type="text" id="ins-title" placeholder="Nama Label (cth: Instagram)" class="bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs text-white focus:outline-none">
+                        <input type="url" id="ins-url" placeholder="URL Target (https://...)" class="bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs text-white focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input type="text" id="ins-category" placeholder="Nama Kategori (cth: Sosial)" class="bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs text-white focus:outline-none">
+                        <input type="text" id="ins-icon" placeholder="Icon Class (cth: fab fa-instagram)" class="bg-white/5 border border-white/10 p-2.5 rounded-xl text-xs text-white focus:outline-none">
+                    </div>
+                    <button onclick="insertLinkItem()" class="w-full bg-gradient-to-r from-[#00d2ff] to-[#ff007f] text-white py-2.5 rounded-xl text-xs font-black uppercase hover:opacity-90 transition cursor-pointer">Simpan Link Baru</button>
+                </div>
+
+                <!-- Live Editor List -->
+                <div class="space-y-2">
+                    <span class="text-xs font-mono uppercase tracking-wider text-gray-400 block font-bold">Daftar Link Aktif</span>
+                    <div id="terminal-list" class="space-y-2"></div>
+                </div>
+            </div>
+            
+            <button onclick="closeModal()" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-xl text-xs font-bold uppercase cursor-pointer transition mt-4">Simpan & Tutup Terminal</button>
+        </div>
+    </div>
+
+    <!-- ================= QR DISPLAY MODAL ================= -->
+    <div id="qr-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-950 border border-white/10 p-6 rounded-3xl w-full max-w-sm text-center shadow-2xl text-white">
+            <h3 class="text-lg font-bold mb-2">Pindai QR KyLinks</h3>
+            <p class="text-xs text-gray-400 mb-6">Gunakan kamera HP untuk memindai link profile hub ini.</p>
+            <div id="qrcode-box" class="bg-white p-4 rounded-2xl inline-block mb-6 shadow-md"></div>
+            <button onclick="closeQRModal()" class="w-full bg-white/5 border border-white/10 text-white py-2.5 rounded-xl text-xs font-bold cursor-pointer">Tutup Monitor</button>
+        </div>
+    </div>
+
+    <input type="file" id="restore-file-input" class="hidden" accept=".json" onchange="processRestoreFile(event)">
+
+    <!-- ================= CODE LOGIC CORE ENGINE ================= -->
+    <script>
+        const CRYPTO_PASS = "ky";
+
+        const defaultProfile = {
+            name: "Kyline",
+            avatarUrl: "", // Akan menyimpan data foto Base64 hasil upload perangkat
+            bio: "SMK RPL | Web Developer | JKT48 Fan",
+            location: "Indonesia"
+        };
+
+        const baseCoreSeed = [
+            { id: 1, title: "No WhatsApp", url: "https://wa.me/xxxx", category: "Komunikasi", icon: "fab fa-whatsapp", clicks: 0, isPinned: true, isFav: true, isVisible: true },
+            { id: 2, title: "Instagram Profile", url: "https://instagram.com/xxxx", category: "Media Sosial", icon: "fab fa-instagram", clicks: 0, isPinned: false, isFav: true, isVisible: true },
+            { id: 7, title: "Repository GitHub", url: "https://github.com", category: "Developer Hub", icon: "fab fa-github", clicks: 0, isPinned: true, isFav: false, isVisible: true }
+        ];
+
+        let profileState = JSON.parse(localStorage.getItem('kylinks_profile_v7')) || defaultProfile;
+        let linkState = JSON.parse(localStorage.getItem('kylinks_state_v7')) || baseCoreSeed;
+        let tempAvatarBase64 = profileState.avatarUrl; 
+
+        function saveState() {
+            localStorage.setItem('kylinks_state_v7', JSON.stringify(linkState));
+            localStorage.setItem('kylinks_profile_v7', JSON.stringify(profileState));
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('kylinks_theme_v7', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            renderDashboard();
+        }
+        if(localStorage.getItem('kylinks_theme_v7') === 'light') document.body.classList.remove('dark-mode');
+
+        // Fungsi Memproses File Media Lokal
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempAvatarBase64 = e.target.result; // Ambil string base64 gambar
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearAvatar() {
+            tempAvatarBase64 = "";
+            document.getElementById('cfg-avatar-file').value = "";
+            alert("Foto profil di-reset! Silakan klik 'Update Data Profil' untuk menyimpan.");
+        }
+
+        function renderDashboard() {
+            document.getElementById('profile-name').innerText = profileState.name;
+            document.getElementById('profile-bio').innerText = profileState.bio;
+            
+            if(profileState.location) {
+                document.getElementById('profile-location-box').style.display = 'flex';
+                document.getElementById('profile-location').innerText = profileState.location;
+            } else {
+                document.getElementById('profile-location-box').style.display = 'none';
+            }
+
+            const avatarContainer = document.getElementById('profile-avatar-container');
+            if(profileState.avatarUrl && profileState.avatarUrl.trim() !== "") {
+                avatarContainer.innerHTML = `<img src="${profileState.avatarUrl}" class="w-full h-full object-cover" alt="Profile">`;
+            } else {
+                avatarContainer.innerHTML = profileState.name.substring(0, 2).toUpperCase();
+            }
+
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const pinnedGrid = document.getElementById('pinned-grid');
+            const pinnedSection = document.getElementById('pinned-section');
+            const catSpace = document.getElementById('categories-space');
+            
+            pinnedGrid.innerHTML = '';
+            catSpace.innerHTML = '';
+
+            let filtered = linkState.filter(item => item.isVisible && (item.title.toLowerCase().includes(query) || item.category.toLowerCase().includes(query)));
+            
+            let pinnedItems = filtered.filter(i => i.isPinned);
+            if(pinnedItems.length > 0 && !query) {
+                pinnedSection.classList.remove('hidden');
+                pinnedItems.forEach(item => { pinnedGrid.innerHTML += generateBentoCardHtml(item); });
+            } else { pinnedSection.classList.add('hidden'); }
+
+            let unpinnedItems = filtered.filter(i => !i.isPinned || query);
+            let categories = [...new Set(unpinnedItems.map(item => item.category))];
+
+            categories.forEach(cat => {
+                let catItems = unpinnedItems.filter(i => i.category === cat);
+                let catSection = document.createElement('section');
+                catSection.className = "space-y-3";
+                catSection.innerHTML = `
+                    <h3 class="text-xs uppercase font-mono tracking-widest font-black text-[#00d2ff] dark:text-[#ff007f] flex items-center gap-2">
+                        <span class="w-2 h-2 bg-[#ff007f] dark:bg-[#00d2ff] rounded-full"></span> ${cat}
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        ${catItems.map(item => generateBentoCardHtml(item)).join('')}
+                    </div>
+                `;
+                catSpace.appendChild(catSection);
+            });
+
+            document.getElementById('total-links-count').innerText = linkState.filter(i => i.isVisible).length;
+            document.getElementById('total-clicks-count').innerText = linkState.reduce((sum, item) => sum + (item.clicks || 0), 0);
+        }
+
+        function generateBentoCardHtml(item) {
+            const isDark = document.body.classList.contains('dark-mode');
+            const titleColor = isDark ? 'text-white group-hover:text-[#ff007f]' : 'text-slate-900 group-hover:text-[#00a2cc]';
+            const subtitleColor = isDark ? 'text-slate-400' : 'text-slate-600';
+
+            return `
+                <a href="${item.url}" target="_blank" onclick="registerClick(${item.id})" class="bento-card group block relative p-5 rounded-2xl border overflow-hidden">
+                    <div class="flex items-start justify-between relative z-10">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d2ff]/20 to-[#ff007f]/20 border border-[#00d2ff]/20 flex items-center justify-center text-md text-[#00a2cc] dark:text-[#ff007f] group-hover:from-[#00d2ff] group-hover:to-[#ff007f] group-hover:text-white transition-all duration-300">
+                            <i class="${item.icon || 'fas fa-link'}"></i>
+                        </div>
+                        <div class="flex gap-1.5 text-xs">
+                            ${item.isFav ? '<span class="text-[#ff007f]"><i class="fas fa-heart"></i></span>' : ''}
+                            ${item.isPinned ? '<span class="text-[#00d2ff]"><i class="fas fa-thumbtack"></i></span>' : ''}
+                        </div>
+                    </div>
+                    <div class="mt-4 relative z-10">
+                        <h4 class="font-black text-sm tracking-tight ${titleColor} transition-colors duration-300">${item.title}</h4>
+                        <span class="text-[11px] font-mono ${subtitleColor} block mt-1 truncate">${item.url.replace('https://','').replace('http://','')}</span>
+                    </div>
+                    <div class="absolute right-3 bottom-2 opacity-50 font-mono text-[9px] text-[#00d2ff] dark:text-[#ff007f]">
+                        ${item.clicks || 0} klik
+                    </div>
+                </a>
+            `;
+        }
+
+        function registerClick(id) {
+            let target = linkState.find(item => item.id === id);
+            if(target) {
+                target.clicks = (target.clicks || 0) + 1;
+                saveState(); setTimeout(renderDashboard, 300);
+            }
+        }
+
+        function copyProfileLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Link profil berhasil disalin ke clipboard!");
+        }
+
+        function shareProfile() {
+            if (navigator.share) {
+                navigator.share({
+                    title: profileState.name + ' // Hub',
+                    text: profileState.bio,
+                    url: window.location.href,
+                }).catch(console.error);
+            } else { copyProfileLink(); }
+        }
+
+        function openAuthModal() {
+            document.getElementById('admin-modal').style.display = 'flex';
+            document.getElementById('auth-box').classList.remove('hidden');
+            document.getElementById('dashboard-box').classList.add('hidden');
+            document.getElementById('admin-password').value = '';
+        }
+        function closeModal() { document.getElementById('admin-modal').style.display = 'none'; }
+
+        function verifyAccess() {
+            if(document.getElementById('admin-password').value === CRYPTO_PASS) {
+                document.getElementById('auth-box').classList.add('hidden');
+                document.getElementById('dashboard-box').classList.remove('hidden');
+                
+                document.getElementById('cfg-name').value = profileState.name;
+                document.getElementById('cfg-bio').value = profileState.bio;
+                document.getElementById('cfg-location').value = profileState.location;
+                tempAvatarBase64 = profileState.avatarUrl; 
+
+                renderTerminalList();
+            } else { alert("Sandi Akses Salah!"); }
+        }
+
+        function saveProfileConfig() {
+            profileState.name = document.getElementById('cfg-name').value.trim() || "Kyline";
+            profileState.bio = document.getElementById('cfg-bio').value.trim() || "";
+            profileState.location = document.getElementById('cfg-location').value.trim();
+            profileState.avatarUrl = tempAvatarBase64; // Masukkan base64 gambar yang di-upload
+            
+            saveState(); renderDashboard();
+            alert("Identitas profil berhasil diperbarui!");
+        }
+
+        function renderTerminalList() {
+            const list = document.getElementById('terminal-list');
+            list.innerHTML = '';
+            linkState.forEach(item => {
+                list.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-black/40 border border-white/5 rounded-xl text-xs gap-4">
+                        <div class="truncate flex items-center gap-3">
+                            <i class="${item.icon || 'fas fa-link'} text-[#00d2ff] w-4 text-center"></i>
+                            <div class="truncate">
+                                <span class="font-bold block text-white">${item.title} <span class="text-[9px] text-gray-500 font-mono">(${item.category})</span></span>
+                                <span class="text-[10px] text-gray-400 font-mono block truncate">${item.url}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="toggleAttr(${item.id}, 'isPinned')" class="p-1.5 rounded-lg ${item.isPinned ? 'text-[#00d2ff] bg-[#00d2ff]/20' : 'text-gray-500'}" title="Pin"><i class="fas fa-thumbtack"></i></button>
+                            <button onclick="toggleAttr(${item.id}, 'isFav')" class="p-1.5 rounded-lg ${item.isFav ? 'text-[#ff007f] bg-[#ff007f]/20' : 'text-gray-500'}" title="Favorit"><i class="fas fa-heart"></i></button>
+                            <button onclick="toggleAttr(${item.id}, 'isVisible')" class="p-1.5 rounded-lg ${item.isVisible ? 'text-green-400 bg-green-500/20' : 'text-red-400 bg-red-500/20'}" title="Visibilitas"><i class="${item.isVisible ? 'fas fa-eye' : 'fas fa-eye-slash'}"></i></button>
+                            <button onclick="deleteItem(${item.id})" class="p-1.5 rounded-lg text-red-500 hover:bg-red-500/20" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleAttr(id, attr) {
+            let item = linkState.find(i => i.id === id);
+            if(item) {
+                item[attr] = !item[attr];
+                saveState(); renderDashboard(); renderTerminalList();
+            }
+        }
+
+        function deleteItem(id) {
+            if(confirm("Hapus link ini?")) {
+                linkState = linkState.filter(i => i.id !== id);
+                saveState(); renderDashboard(); renderTerminalList();
+            }
+        }
+
+        function insertLinkItem() {
+            const title = document.getElementById('ins-title').value.trim();
+            const url = document.getElementById('ins-url').value.trim();
+            const category = document.getElementById('ins-category').value.trim() || "Umum";
+            const icon = document.getElementById('ins-icon').value.trim() || "fas fa-link";
+
+            if(!title || !url) return alert("Nama dan URL wajib diisi!");
+
+            linkState.push({
+                id: Date.now(), title, url, category, icon,
+                clicks: 0, isPinned: false, isFav: false, isVisible: true
+            });
+
+            document.getElementById('ins-title').value = '';
+            document.getElementById('ins-url').value = '';
+            saveState(); renderDashboard(); renderTerminalList();
+        }
+
+        function triggerBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({profile: profileState, links: linkState}));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `kylinks_ultimate_backup.json`);
+            document.body.appendChild(downloadAnchor); downloadAnchor.click(); downloadAnchor.remove();
+        }
+
+        function triggerRestore() { document.getElementById('restore-file-input').click(); }
+
+        function processRestoreFile(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    if(parsedData.profile && parsedData.links) {
+                        profileState = parsedData.profile;
+                        linkState = parsedData.links;
+                        saveState(); renderDashboard(); renderTerminalList();
+                        alert("Seluruh Data Profile & Link Berhasil Dipulihkan!");
+                    }
+                } catch (err) { alert("File JSON tidak kompatibel."); }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        function showQRCodeApp() {
+            document.getElementById('qr-modal').style.display = 'flex';
+            document.getElementById('qrcode-box').innerHTML = '';
+            new QRCode(document.getElementById('qrcode-box'), {
+                text: window.location.href, width: 180, height: 180,
+                colorDark : "#001220", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+        function closeQRModal() { document.getElementById('qr-modal').style.display = 'none'; }
+
+        renderDashboard();
+    </script>
+</body>
+</html>
